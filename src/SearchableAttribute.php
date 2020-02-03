@@ -35,8 +35,8 @@ class SearchableAttribute
     public static function createMany(array $attributes): array
     {
         return collect($attributes)
-            ->map(function ($attribute) {
-                return new self($attribute);
+            ->map(function ($type, $attribute) {
+                return new self($attribute, $type);
             })
             ->toArray();
     }
