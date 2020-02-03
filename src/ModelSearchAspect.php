@@ -70,7 +70,7 @@ class ModelSearchAspect extends SearchAspect
 
     public function addSearchableAttribute(string $attribute, bool $partial = true): self
     {
-        $this->attributes[] = SearchableAttribute::create($attribute, $partial);
+        $this->attributes[] = SearchableAttribute::create($attribute, 'partial');
 
         return $this;
     }
@@ -78,6 +78,13 @@ class ModelSearchAspect extends SearchAspect
     public function addExactSearchableAttribute(string $attribute): self
     {
         $this->attributes[] = SearchableAttribute::createExact($attribute);
+
+        return $this;
+    }
+
+    public function addStartSearchableAttribute(string $attribute): self
+    {
+        $this->attributes[] = SearchableAttribute::createStart($attribute);
 
         return $this;
     }
@@ -121,9 +128,20 @@ class ModelSearchAspect extends SearchAspect
                     $sql = "LOWER({$attribute->getAttribute()}) LIKE ?";
                     $searchTerm = mb_strtolower($searchTerm, 'UTF8');
 
-                    $attribute->isPartial()
-                        ? $query->orWhereRaw($sql, ["%{$searchTerm}%"])
-                        : $query->orWhere($attribute->getAttribute(), $searchTerm);
+                    switch ($attribute->type()) {
+                        case 'partial':
+                            $query->orWhereRaw($sql, ["%{$searchTerm}%"]);
+                            break;
+                        case 'exact':
+                            $query->orWhere($attribute->getAttribute(), $searchTerm);
+                            break;
+                        case 'start':
+                            $query->orWhereRaw($sql, ["{$searchTerm}%"]);
+                            break;
+                        default:
+                            $query;
+                            break;
+                    }
                 }
             }
         });

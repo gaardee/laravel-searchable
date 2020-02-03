@@ -7,24 +7,29 @@ class SearchableAttribute
     /** @var string */
     protected $attribute;
 
-    /** @var bool */
-    protected $partial;
+    /** @var string */
+    protected $type;
 
-    public function __construct(string $attribute, bool $partial = true)
+    public function __construct(string $attribute, $type = 'partial')
     {
         $this->attribute = $attribute;
 
-        $this->partial = $partial;
+        $this->type = $type;
     }
 
-    public static function create(string $attribute, bool $partial = true): self
+    public static function create(string $attribute, $type = 'partial'): self
     {
-        return new self($attribute, $partial);
+        return new self($attribute, $type);
     }
 
     public static function createExact(string $attribute): self
     {
-        return static::create($attribute, false);
+        return static::create($attribute, 'exact');
+    }
+
+    public static function createStart(string $attribute): self
+    {
+        return static::create($attribute, 'start');
     }
 
     public static function createMany(array $attributes): array
@@ -41,8 +46,8 @@ class SearchableAttribute
         return $this->attribute;
     }
 
-    public function isPartial(): bool
+    public function type(): string
     {
-        return $this->partial;
+        return $this->type;
     }
 }
